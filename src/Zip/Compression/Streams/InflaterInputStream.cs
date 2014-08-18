@@ -43,7 +43,7 @@
 using System;
 using System.IO;
 
-#if !NETCF_1_0
+#if !NETCF_1_0 && !WINDOWS_STOREAPP
 using System.Security.Cryptography;
 #endif
 
@@ -163,7 +163,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 				toRead -= count;
 			}
 			
-#if !NETCF_1_0
+#if !NETCF_1_0 && !WINDOWS_STOREAPP
 			if ( cryptoTransform != null ) {
 				clearTextLength = cryptoTransform.TransformBlock(rawData, 0, rawLength, clearText, 0);
 			}
@@ -260,7 +260,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 			if (available <= 0) {
 				Fill();
 				if (available <= 0) {
-					throw new ZipException("EOF in header");
+					throw new Exception("EOF in header");
 				}
 			}
 			byte result = rawData[rawLength - available];
@@ -295,7 +295,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 			return (uint)ReadLeInt() | ((long)ReadLeInt() << 32);
 		}
 
-#if !NETCF_1_0
+#if !NETCF_1_0 && !WINDOWS_STOREAPP
 		/// <summary>
 		/// Get/set the <see cref="ICryptoTransform"/> to apply to any data.
 		/// </summary>
@@ -323,22 +323,22 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 		}
 #endif
 
-		#region Instance Fields
-		int rawLength;
+        #region Instance Fields
+        int rawLength;
 		byte[] rawData;
 		
 		int clearTextLength;
 		byte[] clearText;
-#if !NETCF_1_0		
+#if !NETCF_1_0 && !WINDOWS_STOREAPP
 		byte[] internalClearText;
 #endif
-		
-		int available;
-		
-#if !NETCF_1_0
+
+        int available;
+
+#if !NETCF_1_0 && !WINDOWS_STOREAPP
 		ICryptoTransform cryptoTransform;
-#endif		
-		Stream inputStream;
+#endif
+        Stream inputStream;
 		#endregion
 	}
 	
@@ -481,7 +481,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 		/// </summary>		
 		protected void StopDecrypting()
 		{
-#if !NETCF_1_0			
+#if !NETCF_1_0 && !WINDOWS_STOREAPP		
 			inputBuffer.CryptoTransform = null;
 #endif			
 		}
@@ -623,6 +623,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 			throw new NotSupportedException("InflaterInputStream WriteByte not supported");
 		}
 		
+#if !WINDOWS_STOREAPP
 		/// <summary>
 		/// Entry point to begin an asynchronous write.  Always throws a NotSupportedException.
 		/// </summary>
@@ -651,8 +652,9 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 				}
 			}
 		}
+#endif
 
-		/// <summary>
+        /// <summary>
 		/// Reads decompressed data into the provided buffer byte array
 		/// </summary>
 		/// <param name ="buffer">
@@ -689,7 +691,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 					Fill();
 				}
 				else if ( bytesRead == 0 ) {
-					throw new ZipException("Dont know what to do");
+					throw new Exception("Dont know what to do");
 				}
 			}
 			return count - remainingBytes;

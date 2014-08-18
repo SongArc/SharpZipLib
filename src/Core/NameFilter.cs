@@ -40,6 +40,9 @@ using System;
 using System.Collections;
 using System.Text;
 using System.Text.RegularExpressions;
+#if WINDOWS_STOREAPP
+using System.Collections.Generic;
+#endif
 
 namespace ICSharpCode.SharpZipLib.Core
 {
@@ -67,8 +70,13 @@ namespace ICSharpCode.SharpZipLib.Core
 		public NameFilter(string filter)
 		{
 			filter_ = filter;
+#if WINDOWS_STOREAPP
+			inclusions_ = new List<Regex>();
+			exclusions_ = new List<Regex>();
+#else
 			inclusions_ = new ArrayList();
 			exclusions_ = new ArrayList();
+#endif
 			Compile();
 		}
 		#endregion
@@ -138,7 +146,11 @@ namespace ICSharpCode.SharpZipLib.Core
 			char escape = '\\';
 			char[] separators = { ';' };
 
-			ArrayList result = new ArrayList();
+#if WINDOWS_STOREAPP
+			List<string> result = new List<string>();
+#else
+      ArrayList result = new ArrayList();
+#endif
 
 			if ((original != null) && (original.Length > 0)) {
 				int endIndex = -1;
@@ -175,8 +187,11 @@ namespace ICSharpCode.SharpZipLib.Core
 					}
 				}
 			}
-
+#if WINDOWS_STOREAPP
+			return result.ToArray();
+#else
 			return (string[])result.ToArray(typeof(string));
+#endif
 		}
 
 		/// <summary>
@@ -270,10 +285,18 @@ namespace ICSharpCode.SharpZipLib.Core
 					// these are left unhandled here as the caller is responsible for ensuring all is valid.
 					// several functions IsValidFilterExpression and IsValidExpression are provided for such checking
 					if ( include ) {
-						inclusions_.Add(new Regex(toCompile, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline));
+						inclusions_.Add(new Regex(toCompile, RegexOptions.IgnoreCase |
+#if !WINDOWS_STOREAPP
+						    RegexOptions.Compiled |
+#endif
+						    RegexOptions.Singleline));
 					}
 					else {
-						exclusions_.Add(new Regex(toCompile, RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.Singleline));
+						exclusions_.Add(new Regex(toCompile, RegexOptions.IgnoreCase |
+#if !WINDOWS_STOREAPP
+						    RegexOptions.Compiled |
+#endif
+						    RegexOptions.Singleline));
 					}
 				}
 			}
@@ -281,8 +304,13 @@ namespace ICSharpCode.SharpZipLib.Core
 
 		#region Instance Fields
 		string filter_;
+#if WINDOWS_STOREAPP
+		List<Regex> inclusions_;
+		List<Regex> exclusions_;
+#else
 		ArrayList inclusions_;
 		ArrayList exclusions_;
-		#endregion
-	}
+#endif
+        #endregion
+    }
 }

@@ -42,7 +42,7 @@
 using System;
 using System.IO;
 
-#if !NETCF_1_0
+#if !NETCF_1_0 && !WINDOWS_STOREAPP
 using System.Security.Cryptography;
 using ICSharpCode.SharpZipLib.Encryption;
 #endif
@@ -145,6 +145,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 					break;
 				}
 
+#if !WINDOWS_STOREAPP
 #if NETCF_1_0
 				if ( keys != null ) {
 #else
@@ -152,6 +153,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 #endif	
 					EncryptBlock(buffer_, 0, len);
 				}
+#endif
 				
 				baseOutputStream_.Write(buffer_, 0, len);
 			}
@@ -162,7 +164,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
 			baseOutputStream_.Flush();
 			
-#if NETCF_1_0
+#if NETCF_1_0 || WINDOWS_STOREAPP
 			if ( keys != null ) {
 				keys = null;
 			}
@@ -204,7 +206,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 		
 		string password;
 		
-#if NETCF_1_0
+#if NETCF_1_0 || WINDOWS_STOREAPP
 		uint[] keys;
 #else
 		ICryptoTransform cryptoTransform_;
@@ -232,6 +234,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 			}
 		}
 
+#if !WINDOWS_STOREAPP
 		/// <summary>
 		/// Encrypt a block of data
 		/// </summary>
@@ -256,13 +259,15 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 			cryptoTransform_.TransformBlock(buffer, 0, length, buffer, 0);
 #endif
 		}
+#endif
 
+#if !WINDOWS_STOREAPP
 		/// <summary>
 		/// Initializes encryption keys based on given <paramref name="password"/>.
 		/// </summary>
 		/// <param name="password">The password.</param>
 		protected void InitializePassword(string password)
-		{
+        {
 #if NETCF_1_0
 			keys = new uint[] {
 				0x12345678,
@@ -276,14 +281,15 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 				UpdateKeys((byte)rawPassword[i]);
 			}
 			
-#else			
-			PkzipClassicManaged pkManaged = new PkzipClassicManaged();
+#else
+            PkzipClassicManaged pkManaged = new PkzipClassicManaged();
 			byte[] key = PkzipClassic.GenerateKeys(ZipConstants.ConvertToArray(password));
 			cryptoTransform_ = pkManaged.CreateEncryptor(key, null);
 #endif
 		}
+#endif
 
-#if !NET_1_1 && !NETCF_2_0
+#if !NET_1_1 && !NETCF_2_0 && !WINDOWS_STOREAPP
 		/// <summary>
 		/// Initializes encryption keys based on given password.
 		/// </summary>
@@ -327,10 +333,10 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 		}
 #endif
 
-		#endregion
+        #endregion
 
-		#region Deflation Support
-		/// <summary>
+        #region Deflation Support
+        /// <summary>
 		/// Deflates everything in the input buffers.  This will call
 		/// <code>def.deflate()</code> until all bytes from the input buffers
 		/// are processed.
@@ -344,6 +350,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 				if (deflateCount <= 0) {
 					break;
 				}
+#if !WINDOWS_STOREAPP
 #if NETCF_1_0
 				if (keys != null) 
 #else
@@ -352,7 +359,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 				{
 					EncryptBlock(buffer_, 0, deflateCount);
 				}
-				
+#endif
 				baseOutputStream_.Write(buffer_, 0, deflateCount);
 			}
 			
@@ -459,6 +466,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 			throw new NotSupportedException("DeflaterOutputStream Read not supported");
 		}
 		
+#if !WINDOWS_STOREAPP
 		/// <summary>
 		/// Asynchronous reads are not supported a NotSupportedException is always thrown
 		/// </summary>
@@ -488,6 +496,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 		{
 			throw new NotSupportedException("BeginWrite is not supported");
 		}
+#endif
 		
 		/// <summary>
 		/// Flushes the stream by calling <see cref="DeflaterOutputStream.Flush">Flush</see> on the deflater and then
@@ -500,6 +509,7 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 			baseOutputStream_.Flush();
 		}
 		
+#if !WINDOWS_STOREAPP
 		/// <summary>
 		/// Calls <see cref="Finish"/> and closes the underlying
 		/// stream when <see cref="IsStreamOwner"></see> is true.
@@ -528,9 +538,10 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 				}
 			}
 		}
+#endif
 
 		private void GetAuthCodeIfAES() {
-#if !NET_1_1 && !NETCF_2_0
+#if !NET_1_1 && !NETCF_2_0 && !WINDOWS_STOREAPP
 			if (cryptoTransform_ is ZipAESTransform) {
 				AESAuthCode = ((ZipAESTransform)cryptoTransform_).GetAuthCode();
 			}
@@ -593,10 +604,10 @@ namespace ICSharpCode.SharpZipLib.Zip.Compression.Streams
 
 		#region Static Fields
 
-#if !NET_1_1 && !NETCF_2_0
+#if !NET_1_1 && !NETCF_2_0 && !WINDOWS_STOREAPP
 		// Static to help ensure that multiple files within a zip will get different random salt
 		private static RNGCryptoServiceProvider _aesRnd;
 #endif
-		#endregion
-	}
+        #endregion
+    }
 }

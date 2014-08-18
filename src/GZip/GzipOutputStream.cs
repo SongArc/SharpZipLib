@@ -168,6 +168,7 @@ namespace ICSharpCode.SharpZipLib.GZip
 			base.Write(buffer, offset, count);
 		}
 		
+#if !WINDOWS_STOREAPP
 		/// <summary>
 		/// Writes remaining compressed output data to the output stream
 		/// and closes it.
@@ -186,6 +187,7 @@ namespace ICSharpCode.SharpZipLib.GZip
                 }
 			}
 		}
+#endif
 		#endregion
 		
 		#region DeflaterOutputStream overrides

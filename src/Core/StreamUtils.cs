@@ -132,6 +132,7 @@ namespace ICSharpCode.SharpZipLib.Core
 			}
 		}
 
+#if !WINDOWS_STOREAPP
 		/// <summary>
 		/// Copy the contents of one <see cref="Stream"/> to another.
 		/// </summary>
@@ -234,6 +235,7 @@ namespace ICSharpCode.SharpZipLib.Core
 				progressHandler(sender, args);
 			}
 		}
+#endif
 
 		/// <summary>
 		/// Initialise an instance of <see cref="StreamUtils"></see>
