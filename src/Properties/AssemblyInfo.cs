@@ -89,7 +89,7 @@ using System.Runtime.InteropServices;
 //
 // If #Zip is strongly named it still allows partially trusted callers
 //
-[assembly: System.Security.AllowPartiallyTrustedCallers]
+//[assembly: System.Security.AllowPartiallyTrustedCallers]
 #endif
 
 // Setting ComVisible to false makes the types in this assembly not visible 
